@@ -1,15 +1,20 @@
 #X = data = 
+from matplotlib.colors import Colormap
 import numpy as np
 from sklearn.neighbors import kneighbors_graph
 from scipy.linalg import eig
+import matplotlib.pyplot as plt
 
 X = np.array([
     [1,2,3],
     [1,4,1],
     [2,4,7],
-    [2,5,1]
+    [2,5,1],
+    [0,4,6],
+    [-1,50,12],
+    [20,30,15]
 ])
-Y = [1,1,0,1]
+Y = [1,1,0,1,0,0,1]
 
 def get_W(X,K):
     A = kneighbors_graph(X,K).toarray()
@@ -49,4 +54,18 @@ def fit(X,Y,K,alpha,dim):
     #print(eigenValues,'\n',eigenVectors)
     return X.dot(eigenVectors)[:,:dim]
 
-print(fit(X,Y,2,0.5,2))
+
+
+
+Z = fit(X,Y,2,0.5,2)
+cdict = {0: 'red', 1: 'blue'}
+
+ax1 = plt.subplot(1,2,2,title = 'Après transformation Z = XA')
+ax2 = plt.subplot(1,2,1, title = 'Avant transformation')
+
+for g in np.unique(Y):
+    ix = np.where(Y == g)
+    ax1.scatter(Z[ix,0], Z[ix,1], c = cdict[g], label = g)
+    ax2.scatter(X[ix,0], X[ix,1], c = cdict[g], alpha=0.6, label = g)
+ax2.legend()
+plt.show()
