@@ -35,7 +35,7 @@ class lsda(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         
-        # Checks that X and Y have correct shape and data
+        # Checks that X and Y have correct shape
         X, Y = check_X_y(X, y)
         # Store the classes seen during fit
         self.classes_ = unique_labels(Y)
@@ -65,9 +65,8 @@ class lsda(BaseEstimator, ClassifierMixin):
         return self
 
     def transform(self, X):
-        # Checks is fit had been called
-        if not self.fitted:
-            raise Exception("Estimator not yet fitted")
+        #Check is fit had been called
+        check_is_fitted(self)
 
         # Input validation
         X = check_array(X)
