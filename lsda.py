@@ -7,7 +7,7 @@ from sklearn.neighbors import kneighbors_graph
 from scipy.linalg import eig
 
 
-def get_W(X, Y, n_neighbors):
+def get_W(X, y, n_neighbors):
         A = kneighbors_graph(X, n_neighbors).toarray()
         tmp = A + A.T
         tmp = np.array(tmp)
@@ -16,18 +16,18 @@ def get_W(X, Y, n_neighbors):
         n = np.shape(W)[0]
         Ww = np.zeros((n, n))
         Wb = np.zeros((n, n))
-        for i in range(0, n):
-            for j in range(0, n):
+        for i in range(n):
+            for j in range(n):
                 if W[i, j] == 1:
-                    if Y[i] == Y[j]:
+                    if y[i] == y[j]:
                         Ww[i, j] = 1
                     else:
                         Wb[i, j] = 1
         return W, Ww, Wb
 
-class lsda(BaseEstimator, ClassifierMixin):
+class LSDA(BaseEstimator, ClassifierMixin):
 
-    def __init__(self,n_neighbors, n_components=2, alpha=0.5):
+    def __init__(self, n_neighbors, n_components=2, alpha=0.5):
         self.fitted = False
         self.n_neighbors = n_neighbors
         self.n_components = n_components
@@ -36,47 +36,40 @@ class lsda(BaseEstimator, ClassifierMixin):
     def fit(self, X, y):
         
         # Checks that X and Y have correct shape
-        X, Y = check_X_y(X, y)
+        X, y = check_X_y(X, y)
         # Store the classes seen during fit
-        self.classes_ = unique_labels(Y)
-
+        self.classes_ = unique_labels(y)
         self.X_ = X
         self.y_ = y
 
-        #fitting
+        # Computes W, Ww, Wb, Db and Lb
         self.W, self.Ww, self.Wb = get_W(self.X_,self.y_,self.n_neighbors)
         self.Dw = np.diag(np.sum(self.Ww, axis=1))
         self.Db = np.diag(np.sum(self.Wb, axis=1))
         self.Lb = self.Db - self.Wb
 
         # Solves general eigenvalues/eigenvectors problem
-        left_mat = X.T.dot(self.alpha * self.Lb + (1 - self.alpha) * self.Ww).dot(X)  # nxn
-        right_mat = X.T.dot(self.Dw).dot(X)  # nxn
-        self.eigen_values, self.eigen_vectors = eig(left_mat, right_mat)
+        left_term = X.T.dot(self.alpha * self.Lb + (1 - self.alpha) * self.Ww).dot(X)  # (n,n) ndarray
+        right_term = X.T.dot(self.Dw).dot(X) # (n,n) ndarray
+        self.eigen_values, self.eigen_vectors = eig(left_term, right_term)
 
         # Sorts the eigenvectors according to their eigenvalues
         idx = self.eigen_values.argsort()[::-1]
         self.eigen_values = self.eigen_values[idx]
         self.eigen_vectors = self.eigen_vectors[:, idx]
 
-        #fit has been called and predict can be called
+        # Fit has been called and predict can be called
         self.fitted = True
-        # Return the classifier
+        
         return self
 
     def transform(self, X):
-        #Check is fit had been called
+        
+        # Checks if fit has been called
         check_is_fitted(self)
 
         # Input validation
         X = check_array(X)
 
-        # Projects X on a subspace
-        projected_X = X.dot(self.eigen_vectors)[:, :self.n_components]
-
-        return projected_X
-    
-   
-
-
-    
+        # Returns projected_X on a subspace
+        return X.dot(self.eigen_vectors)[:, :self.n_components]
