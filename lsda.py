@@ -76,6 +76,11 @@ class lsda(BaseEstimator, ClassifierMixin):
 
         return projected_X
     
+    def fit_transform(self,X,y):
+        self.fit(X,y)
+        projected_X = self.transform(X)
+        return projected_X
+    
    
 
 
