@@ -58,9 +58,6 @@ class LSDA(BaseEstimator, ClassifierMixin):
         self.eigen_values = self.eigen_values[idx]
         self.eigen_vectors = self.eigen_vectors[:, idx]
 
-        #norms = norm(self.eigen_vectors,axis=0)
-        #self.eigen_vectors/=norms
-        
         return self
 
     def transform(self, X):
