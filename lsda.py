@@ -4,7 +4,7 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import unique_labels
 from sklearn.metrics import euclidean_distances
 from sklearn.neighbors import kneighbors_graph
-from scipy.linalg import eig
+from scipy.linalg import eig, norm
 
 
 def get_W(X, y, n_neighbors):
@@ -28,15 +28,15 @@ def get_W(X, y, n_neighbors):
 class LSDA(BaseEstimator, ClassifierMixin):
 
     def __init__(self, n_neighbors, n_components=2, alpha=0.5):
-        self.fitted = False
         self.n_neighbors = n_neighbors
         self.n_components = n_components
         self.alpha = alpha
 
-    def fit(self, X, y):
+    def fit(self, X, y, scale=False):
         
         # Checks that X and Y have correct shape
         X, y = check_X_y(X, y)
+        
         # Store the classes seen during fit
         self.classes_ = unique_labels(y)
         self.X_ = X
@@ -58,8 +58,8 @@ class LSDA(BaseEstimator, ClassifierMixin):
         self.eigen_values = self.eigen_values[idx]
         self.eigen_vectors = self.eigen_vectors[:, idx]
 
-        # Fit has been called and predict can be called
-        self.fitted = True
+        #norms = norm(self.eigen_vectors,axis=0)
+        #self.eigen_vectors/=norms
         
         return self
 
@@ -71,10 +71,6 @@ class LSDA(BaseEstimator, ClassifierMixin):
         # Input validation
         X = check_array(X)
 
-<<<<<<< HEAD
-        # Returns projected_X on a subspace
-        return X.dot(self.eigen_vectors)[:, :self.n_components]
-=======
         # Projects X on a subspace
         projected_X = X.dot(self.eigen_vectors)[:, :self.n_components]
 
@@ -89,4 +85,3 @@ class LSDA(BaseEstimator, ClassifierMixin):
 
 
     
->>>>>>> d66a0e26ad8467b6568d75c5f8b0b19b7f2ed722
