@@ -38,11 +38,11 @@ class LSDA(BaseEstimator, ClassifierMixin):
         
         # Store the classes seen during fit
         self.classes_ = unique_labels(y)
-        self.X_ = X
-        self.y_ = y
+        self.X = X
+        self.y = y
 
         # Computes W, Ww, Wb, Db and Lb
-        self.W, self.Ww, self.Wb = get_W(self.X_,self.y_,self.n_neighbors)
+        self.W, self.Ww, self.Wb = get_W(self.X, self.y, self.n_neighbors)
         self.Dw = np.diag(np.sum(self.Ww, axis=1))
         self.Db = np.diag(np.sum(self.Wb, axis=1))
         self.Lb = self.Db - self.Wb
@@ -59,7 +59,7 @@ class LSDA(BaseEstimator, ClassifierMixin):
 
         return self
 
-    def transform(self):
+    def transform(self, X):
         
         # Checks if fit has been called
         check_is_fitted(self)
@@ -71,4 +71,4 @@ class LSDA(BaseEstimator, ClassifierMixin):
     
     def fit_transform(self, X, y):
         self.fit(X, y)
-        return self.transform(X)
+        return self.transform()
