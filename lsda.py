@@ -2,9 +2,8 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import unique_labels
-from sklearn.metrics import euclidean_distances
 from sklearn.neighbors import kneighbors_graph
-from scipy.linalg import eig, norm
+from scipy.linalg import eig
 
 
 def get_W(X, y, n_neighbors):
@@ -32,7 +31,7 @@ class LSDA(BaseEstimator, ClassifierMixin):
         self.n_components = n_components
         self.alpha = alpha
 
-    def fit(self, X, y, scale=False):
+    def fit(self, X, y):
         
         # Checks that X and Y have correct shape
         X, y = check_X_y(X, y)
@@ -60,7 +59,7 @@ class LSDA(BaseEstimator, ClassifierMixin):
 
         return self
 
-    def transform(self, X):
+    def transform(self):
         
         # Checks if fit has been called
         check_is_fitted(self)
@@ -68,17 +67,8 @@ class LSDA(BaseEstimator, ClassifierMixin):
         # Input validation
         X = check_array(X)
 
-        # Projects X on a subspace
-        projected_X = X.dot(self.eigen_vectors)[:, :self.n_components]
-
-        return projected_X
+        return X.dot(self.eigen_vectors)[:, :self.n_components]
     
-    def fit_transform(self,X,y):
-        self.fit(X,y)
-        projected_X = self.transform(X)
-        return projected_X
-    
-   
-
-
-    
+    def fit_transform(self, X, y):
+        self.fit(X, y)
+        return self.transform(X)
